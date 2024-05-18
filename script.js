@@ -30,9 +30,21 @@ fetch('timeline.csv')
     .catch(error => console.error('Error fetching data:', error));
 
 
+    function updateCharacterCount() {
+        const input = document.getElementById('chatInput');
+        const charCount = document.getElementById('charCount');
+        charCount.textContent = `${input.value.length}/50`;
+    }
+    
     async function askQuestion() {
         const input = document.getElementById('chatInput').value;
         const responseDiv = document.getElementById('response');
+    
+        if (input.length > 50) {
+            responseDiv.textContent = 'Input exceeds 50 characters.';
+            return;
+        }
+    
         responseDiv.textContent = 'Thinking...';
     
         const events = await fetch('timeline.csv')
@@ -43,27 +55,26 @@ fetch('timeline.csv')
                 return [];
             });
     
-        console.log('Events:', events); // Log the events to ensure they are correctly fetched
+        const query = `Here is the timeline data:\n${events.map(event => event.join(', ')).join('\n')}\n\nQuestion: ${input}`;
     
-        fetch('https://kooroshkz.com/api/guido/', {
+        fetch('/api/guido/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ question: input, events: events })
+            body: JSON.stringify({
+                question: input,
+                events: events
+            })
         })
         .then(response => response.json())
         .then(data => {
-            console.log('Response:', data); // Log the response to see what the server returns
-            if (data.answer) {
-                responseDiv.textContent = data.answer;
-            } else {
-                responseDiv.textContent = 'Sorry, something went wrong.';
-            }
+            responseDiv.textContent = data.answer || data.error;
         })
         .catch(error => {
             console.error('Error:', error);
             responseDiv.textContent = 'Sorry, something went wrong.';
         });
     }
+
     

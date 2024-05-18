@@ -27,7 +27,8 @@
                 </tbody>
             </table>
             <div class="chat-interface">
-                <input type="text" id="chatInput" placeholder="Ask a question...">
+                <input type="text" id="chatInput" placeholder="Ask a question..." oninput="updateCharacterCount()" maxlength="50">
+                <span id="charCount">0/50</span>
                 <button onclick="askQuestion()">Ask</button>
                 <div id="response"></div>
             </div>
