@@ -28,3 +28,34 @@ fetch('timeline.csv')
         });
     })
     .catch(error => console.error('Error fetching data:', error));
+
+
+async function askQuestion() {
+    const input = document.getElementById('chatInput').value;
+    const responseDiv = document.getElementById('response');
+    responseDiv.textContent = 'Thinking...';
+
+    const events = await fetch('timeline.csv')
+        .then(response => response.text())
+        .then(data => data.split('\n').slice(1).map(row => row.split(',')))
+        .catch(error => {
+            console.error('Error fetching data:', error);
+            return [];
+        });
+
+    fetch('https://kooroshkz.com/api/guido/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ question: input, events: events })
+    })
+    .then(response => response.json())
+    .then(data => {
+        responseDiv.textContent = data.answer;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        responseDiv.textContent = 'Sorry, something went wrong.';
+    });
+}
